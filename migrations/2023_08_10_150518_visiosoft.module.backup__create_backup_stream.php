@@ -43,6 +43,12 @@ class VisiosoftModuleBackupCreateBackupStream extends Migration
                 'mode' => 'lookup'
             ],
         ],
+        'type' => [
+            'type' => 'anomaly.field_type.select',
+            'config' => [
+                'handler' => \Visiosoft\BackupModule\Handler\BackupTypes::class
+            ]
+        ],
     ];
 
     /**
