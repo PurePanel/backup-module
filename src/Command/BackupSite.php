@@ -1,6 +1,7 @@
 <?php namespace Visiosoft\BackupModule\Command;
 
 use Illuminate\Console\Command;
+use phpseclib3\Net\SSH2;
 use Visiosoft\BackupModule\BackupLog\Contract\BackupLogRepositoryInterface;
 use Visiosoft\SiteModule\Site\Contract\SiteRepositoryInterface;
 
@@ -18,18 +19,32 @@ class BackupSite extends Command
     {
         $siteId = $this->argument('site_id');
         $site = app(SiteRepositoryInterface::class)->getSiteBySiteID($siteId);
+        $serverPassword = $site->server->getPassword();
+        $status = true;
         if ($site) {
-            $sourcePath = "/home/" . $site->username;
+            $sourcePath = "/home/" . $site->username . "/web";
 
-            $remoteHostPort = setting_value('visiosoft.module.backup::remote_host_port');
-            $remoteHostServerDir = setting_value('visiosoft.module.backup::remote_host_server_directory');
-            $remoteHostUser = setting_value('visiosoft.module.backup::remote_host_user');
-            $remoteHostAddress = setting_value('visiosoft.module.backup::remote_host_address');
+            try {
+                $remoteHostPort = setting_value('visiosoft.module.backup::remote_host_port');
+                $remoteHostUser = setting_value('visiosoft.module.backup::remote_host_user');
+                $remoteHostAddress = setting_value('visiosoft.module.backup::remote_host_address');
+                $remoteHostPassword = setting_value('visiosoft.module.backup::remote_host_password');
 
-            //TODO:: Make The Sync Process to Driver Based
-            $rsyncCommand = "rsync  -avzu --delete -e 'ssh -p$remoteHostPort'  $sourcePath  $remoteHostUser@$remoteHostAddress:$remoteHostServerDir/" . $site->username;
-            exec($rsyncCommand, $output, $returnCode);
-            $status = $returnCode == 0;
+                $remoteHostServerDir = str_replace('.', '_', $site->server->getIp());
+
+                $ssh = new SSH2($remoteHostAddress, $remoteHostPort);
+                $ssh->login($remoteHostUser, $remoteHostPassword);
+                $ssh->setTimeout(360);
+
+                $ssh = new SSH2($site->server->getIp(), 22);
+                $ssh->login('pure', $serverPassword);
+                $ssh->setTimeout(360);
+                //TODO:: Make The Sync Process to Driver Based
+                $rsyncCommand = "echo $serverPassword | sudo -S sudo rsync  -avzu --delete -e 'ssh -i /home/pure/.ssh/id_rsa -p$remoteHostPort'  $sourcePath  $remoteHostUser@$remoteHostAddress:$remoteHostServerDir/" . $site->username . "| echo data ok";
+                $ssh->exec($rsyncCommand);
+            } catch (\Exception $e) {
+                $status = false;
+            }
             app(BackupLogRepositoryInterface::class)->create(['site_id' => $site->id, 'status' => $status]);
         }
     }

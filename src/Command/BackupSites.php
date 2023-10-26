@@ -15,7 +15,7 @@ class BackupSites extends Command
         $sites = app(SiteRepositoryInterface::class)->newQuery()->get();
 
         foreach ($sites as $site) {
-            //Artisan::call(BackupSiteDb::class, ['site_id' => $site->site_id, 'backup_dir' => ""]);
+            Artisan::call(BackupSiteDb::class, ['site_id' => $site->site_id, 'backup_dir' => ""]);
             Artisan::call(BackupSite::class, ['site_id' => $site->site_id]);
         }
     }

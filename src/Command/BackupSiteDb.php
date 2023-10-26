@@ -16,7 +16,7 @@ class BackupSiteDb extends Command
         $siteId = $this->argument('site_id');
         $site = app(SiteRepositoryInterface::class)->getSiteBySiteID($siteId);
         $backupDir = $this->argument('backup_dir');
-        $fileName = date("Y-m-d H:i:s") . "_" . $site->username;
+        $fileName = time() . "-" . date("Y-m-d") . "-" . $site->username . ".sql";
 
         $serverPassword = $site->server->getPassword();
 
@@ -24,12 +24,13 @@ class BackupSiteDb extends Command
         $ssh->login('pure', $serverPassword);
         $ssh->setTimeout(360);
 
-        if (strlen($backupDir)) {
-            $backupDir = "/home/" . $site->username . "/www/sql_backup";
-            $ssh->exec('mkdir ' . $backupDir);
+        if ((int)$backupDir == 0) {
+            $backupDir = "/home/" . $site->username . "/web/sql_backup";
+            $ssh->exec('echo ' . $serverPassword . ' | sudo -S sudo mkdir ' . $backupDir);
+            $ssh->exec('echo ' . $serverPassword . ' | sudo -S sudo chmod -R 777 ' . $backupDir);
         }
 
-        $ssh->exec('mysqldump --host="localhost" --user=' . $site->username . ' --password=' . $site->database . ' ' . $site->username . ' > ' . $backupDir . '/' . $fileName);
+        $ssh->exec('echo ' . $serverPassword . ' | sudo -S sudo mysqldump --host="localhost" --user=pure --password=' . $site->server->getDatabasePassword() . ' ' . $site->username . ' > ' . $backupDir . '/' . $fileName);
         $ssh->exec('exit');
     }
 }
