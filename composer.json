@@ -1,0 +1,12 @@
+{
+  "name": "visiosoft/backup-module",
+  "type": "streams-addon",
+  "autoload": {
+    "psr-4": {
+      "Visiosoft\\BackupModule\\": "src/"
+    }
+  },
+  "require": {
+    "visiosoft/site-module": "*"
+  }
+}
