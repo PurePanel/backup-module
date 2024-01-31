@@ -12,8 +12,6 @@ use phpseclib3\Net\SSH2;
 class BackupSite implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    protected $server;
     protected $ssh_host;
     protected $ssh_root_username;
     protected $ssh_root_password;
@@ -24,7 +22,6 @@ class BackupSite implements ShouldQueue
     public $tries = 3;
 
     public function __construct(
-        $server,
         $ssh_host,
         $ssh_root_username,
         $ssh_root_password,
@@ -35,7 +32,6 @@ class BackupSite implements ShouldQueue
     )
     {
         $this->ssh_host = $ssh_host;
-        $this->server = $server;
         $this->ssh_root_username = $ssh_root_username;
         $this->ssh_root_password = $ssh_root_password;
         $this->ssh_port = $ssh_port;
@@ -45,13 +41,17 @@ class BackupSite implements ShouldQueue
 
     public function handle()
     {
-        $serverPassword = $this->server->getPassword();
 
-        $ssh = new SSH2($this->server->getIp(), 22);
-        $ssh->login("pure", $serverPassword);
+        $ssh = new SSH2($this->ssh_host, $this->ssh_port);
+        $ssh->login($this->ssh_root_username, $this->ssh_root_password);
         $ssh->setTimeout(360);
 
-        $rsyncCommand = "echo $serverPassword | sudo -S sudo apt-get install sshpass -y && sshpass -p '" . $this->ssh_root_password . "' ssh -o StrictHostKeyChecking=no " . $this->ssh_root_username . "@" . $this->ssh_host . " 'cd " . $this->location . " && zip -r - . | cat' > /home/pure/" . $this->backup_filename . ".zip";
-        $ssh->exec($rsyncCommand);
+        // Set Backup Storage Values
+        $backup_host = setting_value('visiosoft.module.backup::remote_host_address');
+        $backup_user = setting_value('visiosoft.module.backup::remote_host_user');
+        $backup_port = setting_value('visiosoft.module.backup::remote_host_port');
+
+        $command = "zip -r /tmp/".$this->backup_filename.".zip " . $this->location . " && scp -P $backup_port /tmp/".$this->backup_filename.".zip $backup_user@$backup_host:/home/";
+        $ssh->exec($command);
     }
 }

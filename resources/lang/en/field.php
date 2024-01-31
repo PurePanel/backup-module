@@ -18,11 +18,11 @@ return [
     'server_ssh_password' => [
         'name' => 'Server SSH Password',
     ],
-    'server_database_root_username' => [
-        'name' => 'Server Database Root Username',
+    'database_username' => [
+        'name' => 'Database Username',
     ],
-    'server_database_root_password' => [
-        'name' => 'Server Database Root Password',
+    'database_password' => [
+        'name' => 'Database Password',
     ],
     'job_server' => [
         'name' => 'Job Server',

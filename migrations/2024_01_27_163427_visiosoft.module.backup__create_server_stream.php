@@ -45,13 +45,12 @@ class VisiosoftModuleBackupCreateServerStream extends Migration
             ],
         ],
         'server_ssh_password' => 'anomaly.field_type.text',
-        'server_database_root_username' => [
-            'type' => 'anomaly.field_type.text',
+        'configuration_completed' => [
+            'type' => 'anomaly.field_type.boolean',
             'config' => [
-                'default_value' => 'root'
+                'default_value' => false
             ],
         ],
-        'server_database_root_password' => 'anomaly.field_type.text',
     ];
 
     /**
@@ -75,12 +74,6 @@ class VisiosoftModuleBackupCreateServerStream extends Migration
         'server_ssh_password' => [
             'required' => true,
         ],
-        'server_database_root_username' => [
-            'required' => true,
-        ],
-        'server_database_root_password' => [
-            'required' => true,
-        ],
+        'configuration_completed',
     ];
-
 }

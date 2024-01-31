@@ -38,7 +38,12 @@ class JobTableBuilder extends TableBuilder
      * @var array|string
      */
     protected $buttons = [
-        'edit'
+        'edit',
+        'backup_now' => [
+            'type' => 'primary',
+            'icon' => 'refresh',
+            'href' => 'admin/backup/backup-now/{entry.id}'
+        ],
     ];
 
     /**

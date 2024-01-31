@@ -24,7 +24,9 @@ class ServerFormBuilder extends FormBuilder
      *
      * @var array|string
      */
-    protected $skips = [];
+    protected $skips = [
+        'configuration_completed'
+    ];
 
     /**
      * The form actions.

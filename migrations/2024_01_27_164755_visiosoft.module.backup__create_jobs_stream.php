@@ -61,6 +61,13 @@ class VisiosoftModuleBackupCreateJobsStream extends Migration
             ],
         ],
         'database_name' => 'anomaly.field_type.text',
+        'database_username' => [
+            'type' => 'anomaly.field_type.text',
+            'config' => [
+                'default_value' => 'root'
+            ],
+        ],
+        'database_password' => 'anomaly.field_type.text',
         'last_backup_at' => 'anomaly.field_type.datetime',
     ];
 
@@ -92,6 +99,13 @@ class VisiosoftModuleBackupCreateJobsStream extends Migration
         'database_name' => [
             'required' => true,
         ],
+        'database_username' => [
+            'required' => true,
+        ],
+        'database_password' => [
+            'required' => true,
+        ],
+        'last_backup_at'
     ];
 
 }
