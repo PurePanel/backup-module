@@ -26,7 +26,7 @@ class BackupJob
             $server_ssh_port = $server->getAttribute('server_ssh_port');
             $server_ssh_username = $server->getAttribute('server_ssh_username');
             $server_ssh_password = $server->getAttribute('server_ssh_password');
-            $location = $server->getAttribute('backup_path');
+            $location = $job->getAttribute('backup_path');
 
             // Set Database Variables
             $db_host = $server_host;
@@ -65,7 +65,6 @@ class BackupJob
 
             // Files Backup
             BackupSite::dispatch(
-                $server,
                 $server_host,
                 $server_ssh_username,
                 $server_ssh_password,

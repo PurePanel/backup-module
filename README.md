@@ -6,10 +6,10 @@
  - Configure the database auth information using .pgpass or .my.cnf. This configuration allows you to take backups without a password.
    - For MySQL (name your file the same as the relevant job slug):
      
-         echo "[client]" > ~/.job-slug.cnf
-         echo "user=zoho_zoho" >> ~/.job-slug.cnf
-         echo "password=your_password" >> ~/.{job-slug}.cnf
-         chmod 600 ~/.job-slug.cnf
+         echo "[client]" > ~/.{database_name}.cnf
+         echo "user=zoho_zoho" >> ~/.{database_name}.cnf
+         echo "password=your_password" >> ~/.{database_name}.cnf
+         chmod 600 ~/.{database_name}.cnf
    
    - For PostgreSQL:
          

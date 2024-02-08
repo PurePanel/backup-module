@@ -7,6 +7,7 @@ use Anomaly\Streams\Platform\Model\Backup\BackupServerEntryModel;
 use Visiosoft\BackupModule\BackupLog\BackupLogModel;
 use Visiosoft\BackupModule\BackupLog\BackupLogRepository;
 use Visiosoft\BackupModule\BackupLog\Contract\BackupLogRepositoryInterface;
+use Visiosoft\BackupModule\Console\BackupJobs;
 use Visiosoft\BackupModule\Console\BackupSite;
 use Visiosoft\BackupModule\Console\BackupSiteDb;
 use Visiosoft\BackupModule\Console\BackupSites;
@@ -39,6 +40,7 @@ class BackupModuleServiceProvider extends AddonServiceProvider
     protected $schedules = [
         'daily' => [
             BackupSites::class,
+            BackupJobs::class,
         ]
     ];
 
@@ -48,11 +50,11 @@ class BackupModuleServiceProvider extends AddonServiceProvider
      * @type array|null
      */
     protected $routes = [
-        'admin/backup/jobs'           => 'Visiosoft\BackupModule\Http\Controller\Admin\JobsController@index',
-        'admin/backup/jobs/create'    => 'Visiosoft\BackupModule\Http\Controller\Admin\JobsController@create',
+        'admin/backup/jobs' => 'Visiosoft\BackupModule\Http\Controller\Admin\JobsController@index',
+        'admin/backup/jobs/create' => 'Visiosoft\BackupModule\Http\Controller\Admin\JobsController@create',
         'admin/backup/jobs/edit/{id}' => 'Visiosoft\BackupModule\Http\Controller\Admin\JobsController@edit',
-        'admin/backup/server'           => 'Visiosoft\BackupModule\Http\Controller\Admin\ServerController@index',
-        'admin/backup/server/create'    => 'Visiosoft\BackupModule\Http\Controller\Admin\ServerController@create',
+        'admin/backup/server' => 'Visiosoft\BackupModule\Http\Controller\Admin\ServerController@index',
+        'admin/backup/server/create' => 'Visiosoft\BackupModule\Http\Controller\Admin\ServerController@create',
         'admin/backup/server/edit/{id}' => 'Visiosoft\BackupModule\Http\Controller\Admin\ServerController@edit',
         'admin/backup' => 'Visiosoft\BackupModule\Http\Controller\Admin\BackupLogsController@index',
         'admin/backup/create' => 'Visiosoft\BackupModule\Http\Controller\Admin\BackupLogsController@create',
