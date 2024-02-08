@@ -7,6 +7,7 @@ use Anomaly\Streams\Platform\Model\Backup\BackupServerEntryModel;
 use Visiosoft\BackupModule\BackupLog\BackupLogModel;
 use Visiosoft\BackupModule\BackupLog\BackupLogRepository;
 use Visiosoft\BackupModule\BackupLog\Contract\BackupLogRepositoryInterface;
+use Visiosoft\BackupModule\Console\BackupJobs;
 use Visiosoft\BackupModule\Console\BackupSite;
 use Visiosoft\BackupModule\Console\BackupSiteDb;
 use Visiosoft\BackupModule\Console\BackupSites;
@@ -39,6 +40,7 @@ class BackupModuleServiceProvider extends AddonServiceProvider
     protected $schedules = [
         'daily' => [
             BackupSites::class,
+            BackupJobs::class,
         ]
     ];
 
