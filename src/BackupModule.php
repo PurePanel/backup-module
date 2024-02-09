@@ -30,6 +30,16 @@ class BackupModule extends Module
                 'new_backup_log',
             ],
         ],
+        'server' => [
+            'buttons' => [
+                'new_server',
+            ],
+        ],
+        'jobs' => [
+            'buttons' => [
+                'new_job',
+            ],
+        ],
     ];
 
 }

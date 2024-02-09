@@ -7,6 +7,6 @@
     }
   },
   "require": {
-    "visiosoft/site-module": "*"
+    "purepanel/site-module": "*"
   }
 }

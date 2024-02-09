@@ -1,4 +1,4 @@
-<?php namespace Visiosoft\BackupModule\Command;
+<?php namespace Visiosoft\BackupModule\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
