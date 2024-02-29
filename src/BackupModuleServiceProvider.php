@@ -27,6 +27,7 @@ class BackupModuleServiceProvider extends AddonServiceProvider
      * @type array|null
      */
     protected $commands = [
+        BackupJobs::class,
         BackupSite::class,
         BackupSiteDb::class,
         BackupSites::class
