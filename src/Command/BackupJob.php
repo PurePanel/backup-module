@@ -29,7 +29,7 @@ class BackupJob
             $location = $job->getAttribute('backup_path');
 
             // Set Database Variables
-            $db_host = $server_host;
+            $db_host = $job->getAttribute('database_host') ?? $server_host;
             $db_driver = $job->getAttribute('database_type');
             $db_port = $job->getAttribute('database_type') == 'postgresql' ? 5432 : 3306;
             $db_username = $job->getAttribute('database_username');

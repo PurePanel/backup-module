@@ -42,6 +42,9 @@ return [
     'database_type' => [
         'name' => 'Database Type',
     ],
+    'database_host' => [
+        'name' => 'Database Host',
+    ],
     'database_name' => [
         'name' => 'Database Name',
     ],
