@@ -68,7 +68,7 @@ class BackupDB implements ShouldQueue
         if ($this->db_driver == 'postgresql') {
             $command = "pg_dump -h " . $this->db_host . " -p " . $this->db_port . " -U " . $this->db_root_username . " -Fc " . $this->db_name . " > " . $this->backup_filename . ".sql && scp -P $backup_port " . $this->backup_filename . ".sql $backup_user@$backup_host:/home/" . $this->backup_filename . ".sql";
         } else {
-            $command = "mysqldump --defaults-extra-file=~/." . $this->db_name . ".cnf --single-transaction -u " . $this->db_root_username . " " . $this->db_name . " > " . $this->backup_filename . ".sql && scp -P $backup_port " . $this->backup_filename . ".sql $backup_user@$backup_host:/home/" . $this->backup_filename . ".sql";
+            $command = "mysqldump --defaults-extra-file=~/." . $this->db_name . ".cnf --single-transaction -h " . $this->db_host . " -u " . $this->db_root_username . " " . $this->db_name . " > " . $this->backup_filename . ".sql && scp -P $backup_port " . $this->backup_filename . ".sql $backup_user@$backup_host:/home/" . $this->backup_filename . ".sql";
         }
         $ssh->exec($command);
     }
