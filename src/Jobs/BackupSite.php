@@ -51,7 +51,7 @@ class BackupSite implements ShouldQueue
         $backup_user = setting_value('visiosoft.module.backup::remote_host_user');
         $backup_port = setting_value('visiosoft.module.backup::remote_host_port');
 
-        $command = "zip -r /tmp/".$this->backup_filename.".zip " . $this->location . " && scp -P $backup_port /tmp/".$this->backup_filename.".zip $backup_user@$backup_host:/home/";
+        $command = "zip -r /tmp/".$this->backup_filename.".zip " . $this->location . " && scp -P $backup_port /tmp/".$this->backup_filename.".zip $backup_user@$backup_host:/home/ && rm /tmp/".$this->backup_filename.".zip";
         $ssh->exec($command);
     }
 }
