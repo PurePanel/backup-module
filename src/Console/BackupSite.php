@@ -41,7 +41,11 @@ class BackupSite extends Command
                 $ssh->setTimeout(360);
                 //TODO:: Make The Sync Process to Driver Based
                 $rsyncCommand = "echo $serverPassword | sudo -S sudo rsync  -avzu --delete -e 'ssh -i /home/pure/.ssh/id_rsa -p$remoteHostPort'  $sourcePath  $remoteHostUser@$remoteHostAddress:$remoteHostServerDir/" . $site->username . "| echo data ok";
-                $ssh->exec($rsyncCommand);
+                $deleteCommand = "rm -rf /home/" . $site->username . "/web/sql_backup";
+
+                $combinedCommand = $rsyncCommand . " && " . $deleteCommand;
+
+                $ssh->exec($combinedCommand);
             } catch (\Exception $e) {
                 $status = false;
             }

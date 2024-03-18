@@ -8,6 +8,9 @@ use Visiosoft\BackupModule\BackupLog\BackupLogModel;
 use Visiosoft\BackupModule\BackupLog\BackupLogRepository;
 use Visiosoft\BackupModule\BackupLog\Contract\BackupLogRepositoryInterface;
 use Visiosoft\BackupModule\Console\BackupJobs;
+use Visiosoft\BackupModule\Console\BackupSite;
+use Visiosoft\BackupModule\Console\BackupSiteDb;
+use Visiosoft\BackupModule\Console\BackupSites;
 use Visiosoft\BackupModule\Job\Contract\JobRepositoryInterface;
 use Visiosoft\BackupModule\Job\JobModel;
 use Visiosoft\BackupModule\Job\JobRepository;
@@ -25,6 +28,9 @@ class BackupModuleServiceProvider extends AddonServiceProvider
      */
     protected $commands = [
         BackupJobs::class,
+        BackupSite::class,
+        BackupSiteDb::class,
+        BackupSites::class
     ];
 
     /**
@@ -34,6 +40,7 @@ class BackupModuleServiceProvider extends AddonServiceProvider
      */
     protected $schedules = [
         'daily' => [
+            BackupSites::class,
             BackupJobs::class,
         ]
     ];
