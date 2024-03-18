@@ -40,7 +40,6 @@ class BackupModuleServiceProvider extends AddonServiceProvider
      */
     protected $schedules = [
         'daily' => [
-            BackupSites::class,
             BackupJobs::class,
         ]
     ];
@@ -51,11 +50,11 @@ class BackupModuleServiceProvider extends AddonServiceProvider
      * @type array|null
      */
     protected $routes = [
-        'admin/backup/jobs'           => 'Visiosoft\BackupModule\Http\Controller\Admin\JobsController@index',
-        'admin/backup/jobs/create'    => 'Visiosoft\BackupModule\Http\Controller\Admin\JobsController@create',
+        'admin/backup/jobs' => 'Visiosoft\BackupModule\Http\Controller\Admin\JobsController@index',
+        'admin/backup/jobs/create' => 'Visiosoft\BackupModule\Http\Controller\Admin\JobsController@create',
         'admin/backup/jobs/edit/{id}' => 'Visiosoft\BackupModule\Http\Controller\Admin\JobsController@edit',
-        'admin/backup/server'           => 'Visiosoft\BackupModule\Http\Controller\Admin\ServerController@index',
-        'admin/backup/server/create'    => 'Visiosoft\BackupModule\Http\Controller\Admin\ServerController@create',
+        'admin/backup/server' => 'Visiosoft\BackupModule\Http\Controller\Admin\ServerController@index',
+        'admin/backup/server/create' => 'Visiosoft\BackupModule\Http\Controller\Admin\ServerController@create',
         'admin/backup/server/edit/{id}' => 'Visiosoft\BackupModule\Http\Controller\Admin\ServerController@edit',
         'admin/backup' => 'Visiosoft\BackupModule\Http\Controller\Admin\BackupLogsController@index',
         'admin/backup/create' => 'Visiosoft\BackupModule\Http\Controller\Admin\BackupLogsController@create',
@@ -84,4 +83,14 @@ class BackupModuleServiceProvider extends AddonServiceProvider
         ServerRepositoryInterface::class => ServerRepository::class,
         BackupLogRepositoryInterface::class => BackupLogRepository::class,
     ];
+
+    public function getSchedules()
+    {
+        $schedules = $this->schedules;
+        if (config('backup::backup_this_server_sites', false)) {
+            $schedules['daily'][] = BackupSites::class;
+        }
+
+        return $schedules;
+    }
 }

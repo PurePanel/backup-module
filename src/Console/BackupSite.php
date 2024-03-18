@@ -20,6 +20,7 @@ class BackupSite extends Command
         $siteId = $this->argument('site_id');
         $site = app(SiteRepositoryInterface::class)->getSiteBySiteID($siteId);
         $serverPassword = $site->server->getPassword();
+        $fileName = $site->username . "-" . date('Y-m-d-H-i-s');
         $status = true;
         if ($site) {
             $sourcePath = "/home/" . $site->username . "/web";
@@ -39,11 +40,19 @@ class BackupSite extends Command
                 $ssh = new SSH2($site->server->getIp(), 22);
                 $ssh->login('pure', $serverPassword);
                 $ssh->setTimeout(360);
-                //TODO:: Make The Sync Process to Driver Based
-                $rsyncCommand = "echo $serverPassword | sudo -S sudo rsync  -avzu --delete -e 'ssh -i /home/pure/.ssh/id_rsa -p$remoteHostPort'  $sourcePath  $remoteHostUser@$remoteHostAddress:$remoteHostServerDir/" . $site->username . "| echo data ok";
-                $deleteCommand = "rm -rf /home/" . $site->username . "/web/sql_backup";
 
-                $combinedCommand = $rsyncCommand . " && " . $deleteCommand;
+                // Make directory (Zip)
+                $zipCommand = "zip -r /tmp/" . $fileName . ".zip " . $sourcePath;
+                // Create Directory for Storage
+                $mkdirCommand = "ssh -p$remoteHostPort $remoteHostUser@$remoteHostAddress 'mkdir -p /home/$remoteHostServerDir'";
+                // Transfer Zip File
+                $transferCommand = "scp -P $remoteHostPort /tmp/" . $fileName . ".zip $remoteHostUser@$remoteHostAddress:/$remoteHostServerDir/";
+                // Remove Zip file in local
+                $deleteTempCommand = "rm /tmp/" . $fileName . ".zip";
+                // Remove sql_backups folder in local
+                $deleteSqlFilesCommand = "rm -rf /home/" . $site->username . "/web/sql_backup";
+                //TODO:: Make The Sync Process to Driver Based
+                $combinedCommand = $zipCommand . " && " . $mkdirCommand . " && " . $transferCommand . " && " . $deleteTempCommand . " && " . $deleteSqlFilesCommand;
 
                 $ssh->exec($combinedCommand);
             } catch (\Exception $e) {
