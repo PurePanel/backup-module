@@ -1,5 +1,12 @@
 # backup-module
 
+### What to do before backing up sites on the active server.
+
+- You need to connect the StorageBox before activating it from the settings.
+
+        cat ~/.ssh/id_rsa.pub | ssh -p23 uXXXXX@uXXXXX.your-storagebox.de install-ssh-key
+
+- You can then turn on the site backup setting in the settings so that the backup process is performed automatically on a daily basis.
 ### Pre-requisites Before Adding Server/Jobs
  - Install the relevant PostgreSQL version inside the server you connected for PostgreSQL backups;
    -     sudo apt-get install -y postgresql-client-14

@@ -12,6 +12,7 @@ use phpseclib3\Net\SSH2;
 class BackupSite implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
     protected $ssh_host;
     protected $ssh_root_username;
     protected $ssh_root_password;
@@ -51,7 +52,19 @@ class BackupSite implements ShouldQueue
         $backup_user = setting_value('visiosoft.module.backup::remote_host_user');
         $backup_port = setting_value('visiosoft.module.backup::remote_host_port');
 
-        $command = "zip -r /tmp/".$this->backup_filename.".zip " . $this->location . " && scp -P $backup_port /tmp/".$this->backup_filename.".zip $backup_user@$backup_host:/home/";
-        $ssh->exec($command);
+        $backupServerDir = str_replace('.', '_', $this->ssh_host);
+
+        // Make directory (Zip)
+        $zipCommand = "zip -r /tmp/" . $this->backup_filename . ".zip " . $this->location;
+        // Create Directory for Storage
+        $mkdirCommand = "ssh -p$backup_port $backup_user@$backup_host 'mkdir -p /home/$backupServerDir'";
+        // Transfer Zip File
+        $transferCommand = "scp -P $backup_port /tmp/" . $this->backup_filename . ".zip $backup_user@$backup_host:/home/$backupServerDir/";
+        // Remove Temp File
+        $removeLocalFileCommand = "rm /tmp/" . $this->backup_filename . ".zip";
+
+        $combinedCommand = $zipCommand . " && " . $mkdirCommand . " && " . $transferCommand . " && " . $removeLocalFileCommand;
+
+        $ssh->exec($combinedCommand);
     }
 }

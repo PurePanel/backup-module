@@ -61,15 +61,29 @@ class BackupDB implements ShouldQueue
         $backup_user = setting_value('visiosoft.module.backup::remote_host_user');
         $backup_port = setting_value('visiosoft.module.backup::remote_host_port');
 
+        $backupServerDir = str_replace('.', '_', $this->ssh_host);
+
         $ssh = new SSH2($this->ssh_host, $this->ssh_port);
         $ssh->login($this->ssh_root_username, $this->ssh_root_password);
         $ssh->setTimeout(360);
 
+
+        $dumpCommand = "";
         if ($this->db_driver == 'postgresql') {
-            $command = "pg_dump -h " . $this->db_host . " -p " . $this->db_port . " -U " . $this->db_root_username . " -Fc " . $this->db_name . " > " . $this->backup_filename . ".sql && scp -P $backup_port " . $this->backup_filename . ".sql $backup_user@$backup_host:/home/" . $this->backup_filename . ".sql";
+            $dumpCommand = "pg_dump -h " . $this->db_host . " -p " . $this->db_port . " -U " . $this->db_root_username . " -Fc " . $this->db_name . " > " . $this->backup_filename . ".sql";
         } else {
-            $command = "mysqldump --defaults-extra-file=~/." . $this->db_name . ".cnf --single-transaction -h " . $this->db_host . " -u " . $this->db_root_username . " " . $this->db_name . " > " . $this->backup_filename . ".sql && scp -P $backup_port " . $this->backup_filename . ".sql $backup_user@$backup_host:/home/" . $this->backup_filename . ".sql";
+            $dumpCommand = "mysqldump --defaults-extra-file=~/." . $this->db_name . ".cnf --single-transaction -h " . $this->db_host . " -u " . $this->db_root_username . " " . $this->db_name . " > " . $this->backup_filename . ".sql";
         }
-        $ssh->exec($command);
+
+        // Create Directory for Storage
+        $mkdirCommand = "ssh -p$backup_port $backup_user@$backup_host 'mkdir -p /home/$backupServerDir'";
+        // Transfer SQL File
+        $transferCommand = "scp -P $backup_port " . $this->backup_filename . ".sql $backup_user@$backup_host:/home/$backupServerDir/" . $this->backup_filename . ".sql";
+        // Remove SQL file in local
+        $removeLocalFileCommand = "rm " . $this->backup_filename . ".sql";
+
+        $combinedCommand = $dumpCommand . " && " . $mkdirCommand . " && " . $transferCommand . " && " . $removeLocalFileCommand;
+
+        $ssh->exec($combinedCommand);
     }
 }
