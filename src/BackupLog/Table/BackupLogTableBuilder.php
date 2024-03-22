@@ -33,7 +33,10 @@ class BackupLogTableBuilder extends TableBuilder
             ],
         ],
         'site',
-        'status'
+        'status',
+        'ip',
+        'path',
+        'type'
     ];
 
     /**

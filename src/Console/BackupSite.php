@@ -58,7 +58,7 @@ class BackupSite extends Command
             } catch (\Exception $e) {
                 $status = false;
             }
-            app(BackupLogRepositoryInterface::class)->create(['site_id' => $site->id, 'status' => $status]);
+            app(BackupLogRepositoryInterface::class)->create(['site_id' => $site->id, 'status' => $status, 'type' => 'full']);
         }
     }
 }

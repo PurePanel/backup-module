@@ -8,6 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use phpseclib3\Net\SSH2;
+use Visiosoft\BackupModule\BackupLog\Contract\BackupLogRepositoryInterface;
 
 class BackupSite implements ShouldQueue
 {
@@ -42,29 +43,37 @@ class BackupSite implements ShouldQueue
 
     public function handle()
     {
+        try {
+            $status = true;
 
-        $ssh = new SSH2($this->ssh_host, $this->ssh_port);
-        $ssh->login($this->ssh_root_username, $this->ssh_root_password);
-        $ssh->setTimeout(360);
+            $ssh = new SSH2($this->ssh_host, $this->ssh_port);
+            $ssh->login($this->ssh_root_username, $this->ssh_root_password);
+            $ssh->setTimeout(360);
 
-        // Set Backup Storage Values
-        $backup_host = setting_value('visiosoft.module.backup::remote_host_address');
-        $backup_user = setting_value('visiosoft.module.backup::remote_host_user');
-        $backup_port = setting_value('visiosoft.module.backup::remote_host_port');
+            // Set Backup Storage Values
+            $backup_host = setting_value('visiosoft.module.backup::remote_host_address');
+            $backup_user = setting_value('visiosoft.module.backup::remote_host_user');
+            $backup_port = setting_value('visiosoft.module.backup::remote_host_port');
 
-        $backupServerDir = str_replace('.', '_', $this->ssh_host);
+            $backupServerDir = str_replace('.', '_', $this->ssh_host);
 
-        // Make directory (Zip)
-        $zipCommand = "zip -r /tmp/" . $this->backup_filename . ".zip " . $this->location;
-        // Create Directory for Storage
-        $mkdirCommand = "ssh -p$backup_port $backup_user@$backup_host 'mkdir -p /home/$backupServerDir'";
-        // Transfer Zip File
-        $transferCommand = "scp -P $backup_port /tmp/" . $this->backup_filename . ".zip $backup_user@$backup_host:/home/$backupServerDir/";
-        // Remove Temp File
-        $removeLocalFileCommand = "rm /tmp/" . $this->backup_filename . ".zip";
+            // Make directory (Zip)
+            $zipCommand = "zip -r /tmp/" . $this->backup_filename . ".zip " . $this->location;
+            // Create Directory for Storage
+            $mkdirCommand = "ssh -p$backup_port $backup_user@$backup_host 'mkdir -p /home/$backupServerDir'";
+            // Transfer Zip File
+            $transferCommand = "scp -P $backup_port /tmp/" . $this->backup_filename . ".zip $backup_user@$backup_host:/home/$backupServerDir/";
+            // Remove Temp File
+            $removeLocalFileCommand = "rm /tmp/" . $this->backup_filename . ".zip";
 
-        $combinedCommand = $zipCommand . " && " . $mkdirCommand . " && " . $transferCommand . " && " . $removeLocalFileCommand;
+            $combinedCommand = $zipCommand . " && " . $mkdirCommand . " && " . $transferCommand . " && " . $removeLocalFileCommand;
 
-        $ssh->exec($combinedCommand);
+            $ssh->exec($combinedCommand);
+
+        } catch (\Exception $exception) {
+            $status = false;
+        }
+
+        app(BackupLogRepositoryInterface::class)->create(['ip' => $this->ssh_host, 'path' => $this->location, 'status' => $status, 'type' => 'files']);
     }
 }
