@@ -51,4 +51,14 @@ return [
     'last_backup_at' => [
         'name' => 'Last Backup Time',
     ],
+
+    'ip' => [
+        'name' => 'IP Address',
+    ],
+    'path' => [
+        'name' => 'Path',
+    ],
+    'type' => [
+        'name' => 'Type',
+    ],
 ];

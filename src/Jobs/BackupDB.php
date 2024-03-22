@@ -8,6 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use phpseclib3\Net\SSH2;
+use Visiosoft\BackupModule\BackupLog\Contract\BackupLogRepositoryInterface;
 
 class BackupDB implements ShouldQueue
 {
@@ -56,34 +57,43 @@ class BackupDB implements ShouldQueue
 
     public function handle()
     {
-        // Set Backup Storage Values
-        $backup_host = setting_value('visiosoft.module.backup::remote_host_address');
-        $backup_user = setting_value('visiosoft.module.backup::remote_host_user');
-        $backup_port = setting_value('visiosoft.module.backup::remote_host_port');
+        try {
+            $status = true;
 
-        $backupServerDir = str_replace('.', '_', $this->ssh_host);
+            // Set Backup Storage Values
+            $backup_host = setting_value('visiosoft.module.backup::remote_host_address');
+            $backup_user = setting_value('visiosoft.module.backup::remote_host_user');
+            $backup_port = setting_value('visiosoft.module.backup::remote_host_port');
 
-        $ssh = new SSH2($this->ssh_host, $this->ssh_port);
-        $ssh->login($this->ssh_root_username, $this->ssh_root_password);
-        $ssh->setTimeout(360);
+            $backupServerDir = str_replace('.', '_', $this->ssh_host);
+
+            $ssh = new SSH2($this->ssh_host, $this->ssh_port);
+            $ssh->login($this->ssh_root_username, $this->ssh_root_password);
+            $ssh->setTimeout(360);
 
 
-        $dumpCommand = "";
-        if ($this->db_driver == 'postgresql') {
-            $dumpCommand = "pg_dump -h " . $this->db_host . " -p " . $this->db_port . " -U " . $this->db_root_username . " -Fc " . $this->db_name . " > " . $this->backup_filename . ".sql";
-        } else {
-            $dumpCommand = "mysqldump --defaults-extra-file=~/." . $this->db_name . ".cnf --single-transaction -h " . $this->db_host . " -u " . $this->db_root_username . " " . $this->db_name . " > " . $this->backup_filename . ".sql";
+            $dumpCommand = "";
+            if ($this->db_driver == 'postgresql') {
+                $dumpCommand = "pg_dump -h " . $this->db_host . " -p " . $this->db_port . " -U " . $this->db_root_username . " -Fc " . $this->db_name . " > " . $this->backup_filename . ".sql";
+            } else {
+                $dumpCommand = "mysqldump --defaults-extra-file=~/." . $this->db_name . ".cnf --single-transaction -h " . $this->db_host . " -u " . $this->db_root_username . " " . $this->db_name . " > " . $this->backup_filename . ".sql";
+            }
+
+            // Create Directory for Storage
+            $mkdirCommand = "ssh -p$backup_port $backup_user@$backup_host 'mkdir -p /home/$backupServerDir'";
+            // Transfer SQL File
+            $transferCommand = "scp -P $backup_port " . $this->backup_filename . ".sql $backup_user@$backup_host:/home/$backupServerDir/" . $this->backup_filename . ".sql";
+            // Remove SQL file in local
+            $removeLocalFileCommand = "rm " . $this->backup_filename . ".sql";
+
+            $combinedCommand = $dumpCommand . " && " . $mkdirCommand . " && " . $transferCommand . " && " . $removeLocalFileCommand;
+
+            $ssh->exec($combinedCommand);
+
+        } catch (\Exception $exception) {
+            $status = false;
         }
 
-        // Create Directory for Storage
-        $mkdirCommand = "ssh -p$backup_port $backup_user@$backup_host 'mkdir -p /home/$backupServerDir'";
-        // Transfer SQL File
-        $transferCommand = "scp -P $backup_port " . $this->backup_filename . ".sql $backup_user@$backup_host:/home/$backupServerDir/" . $this->backup_filename . ".sql";
-        // Remove SQL file in local
-        $removeLocalFileCommand = "rm " . $this->backup_filename . ".sql";
-
-        $combinedCommand = $dumpCommand . " && " . $mkdirCommand . " && " . $transferCommand . " && " . $removeLocalFileCommand;
-
-        $ssh->exec($combinedCommand);
+        app(BackupLogRepositoryInterface::class)->create(['ip' => $this->db_host, 'path' => $this->db_name, 'status' => $status, 'type' => 'db']);
     }
 }
