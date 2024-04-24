@@ -41,6 +41,7 @@ class BackupModuleServiceProvider extends AddonServiceProvider
     protected $schedules = [
         'daily' => [
             BackupJobs::class,
+            BackupSites::class,
         ]
     ];
 
