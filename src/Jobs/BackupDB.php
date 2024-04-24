@@ -74,7 +74,7 @@ class BackupDB implements ShouldQueue
 
             $dumpCommand = "";
             if ($this->db_driver == 'postgresql') {
-                $dumpCommand = "pg_dump -h " . $this->db_host . " -p " . $this->db_port . " -U " . $this->db_root_username . " -Fc " . $this->db_name . " > " . $this->backup_filename . ".sql";
+                $dumpCommand = "pg_dump -h " . $this->db_host . " -p " . $this->db_port . " -U " . $this->db_root_username . " -Fc " . $this->db_name . " > /tmp/" . $this->backup_filename . ".sql";
             } else {
                 $dumpCommand = "mysqldump --defaults-extra-file=~/." . $this->db_name . ".cnf --single-transaction -h " . $this->db_host . " -u " . $this->db_root_username . " " . $this->db_name . " > " . $this->backup_filename . ".sql";
             }
@@ -82,9 +82,9 @@ class BackupDB implements ShouldQueue
             // Create Directory for Storage
             $mkdirCommand = "ssh -p$backup_port $backup_user@$backup_host 'mkdir -p /home/$backupServerDir'";
             // Transfer SQL File
-            $transferCommand = "scp -P $backup_port " . $this->backup_filename . ".sql $backup_user@$backup_host:/home/$backupServerDir/" . $this->backup_filename . ".sql";
+            $transferCommand = "scp -P $backup_port /tmp/" . $this->backup_filename . ".sql $backup_user@$backup_host:/home/$backupServerDir/" . $this->backup_filename . ".sql";
             // Remove SQL file in local
-            $removeLocalFileCommand = "rm " . $this->backup_filename . ".sql";
+            $removeLocalFileCommand = "rm /tmp/" . $this->backup_filename . ".sql";
 
             $combinedCommand = $dumpCommand . " && " . $mkdirCommand . " && " . $transferCommand . " && " . $removeLocalFileCommand;
 
