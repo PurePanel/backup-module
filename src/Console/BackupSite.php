@@ -46,7 +46,7 @@ class BackupSite extends Command
                 // Create Directory for Storage
                 $mkdirCommand = "ssh -p$remoteHostPort $remoteHostUser@$remoteHostAddress 'mkdir -p /home/$remoteHostServerDir'";
                 // Transfer Zip File
-                $transferCommand = "scp -P $remoteHostPort /tmp/" . $fileName . ".zip $remoteHostUser@$remoteHostAddress:/$remoteHostServerDir/";
+                $transferCommand = "scp -P $remoteHostPort /tmp/" . $fileName . ".zip $remoteHostUser@$remoteHostAddress:/home/$remoteHostServerDir/";
                 // Remove Zip file in local
                 $deleteTempCommand = "rm /tmp/" . $fileName . ".zip";
                 // Remove sql_backups folder in local
