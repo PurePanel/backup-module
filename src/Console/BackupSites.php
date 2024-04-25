@@ -1,7 +1,7 @@
 <?php namespace Visiosoft\BackupModule\Console;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
+use Visiosoft\BackupModule\Jobs\BackupLocalSite;
 use Visiosoft\SiteModule\Site\Contract\SiteRepositoryInterface;
 
 class BackupSites extends Command
@@ -15,8 +15,7 @@ class BackupSites extends Command
         $sites = app(SiteRepositoryInterface::class)->newQuery()->get();
 
         foreach ($sites as $site) {
-            Artisan::call(BackupSiteDb::class, ['site_id' => $site->site_id, 'backup_dir' => ""]);
-            Artisan::call(BackupSite::class, ['site_id' => $site->site_id]);
+            BackupLocalSite::dispatch($site);
         }
     }
 }
