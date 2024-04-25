@@ -76,7 +76,7 @@ class BackupDB implements ShouldQueue
             if ($this->db_driver == 'postgresql') {
                 $dumpCommand = "pg_dump -h " . $this->db_host . " -p " . $this->db_port . " -U " . $this->db_root_username . " -Fc " . $this->db_name . " > /tmp/" . $this->backup_filename . ".sql";
             } else {
-                $dumpCommand = "mysqldump --defaults-extra-file=~/." . $this->db_name . ".cnf --single-transaction -h " . $this->db_host . " -u " . $this->db_root_username . " " . $this->db_name . " > " . $this->backup_filename . ".sql";
+                $dumpCommand = "mysqldump --defaults-extra-file=~/." . $this->db_name . ".cnf --single-transaction -h " . $this->db_host . " -u " . $this->db_root_username . " " . $this->db_name . " > /tmp/" . $this->backup_filename . ".sql";
             }
 
             // Create Directory for Storage
