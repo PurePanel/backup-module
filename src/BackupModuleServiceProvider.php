@@ -41,6 +41,7 @@ class BackupModuleServiceProvider extends AddonServiceProvider
     protected $schedules = [
         'daily' => [
             BackupJobs::class,
+            BackupSites::class,
         ]
     ];
 
@@ -83,14 +84,4 @@ class BackupModuleServiceProvider extends AddonServiceProvider
         ServerRepositoryInterface::class => ServerRepository::class,
         BackupLogRepositoryInterface::class => BackupLogRepository::class,
     ];
-
-    public function getSchedules()
-    {
-        $schedules = $this->schedules;
-        if (config('backup::backup_this_server_sites', false)) {
-            $schedules['daily'][] = BackupSites::class;
-        }
-
-        return $schedules;
-    }
 }
