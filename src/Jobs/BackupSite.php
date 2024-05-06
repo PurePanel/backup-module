@@ -23,6 +23,8 @@ class BackupSite implements ShouldQueue
 
     public $tries = 3;
 
+    public $timeout = 3600;
+
     public function __construct(
         $ssh_host,
         $ssh_root_username,
@@ -48,7 +50,7 @@ class BackupSite implements ShouldQueue
 
             $ssh = new SSH2($this->ssh_host, $this->ssh_port);
             $ssh->login($this->ssh_root_username, $this->ssh_root_password);
-            $ssh->setTimeout(360);
+            $ssh->setTimeout(3600);
 
             // Set Backup Storage Values
             $backup_host = setting_value('visiosoft.module.backup::remote_host_address');
