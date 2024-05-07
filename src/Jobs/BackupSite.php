@@ -64,8 +64,8 @@ class BackupSite implements ShouldQueue
             // Create Directory for Storage
             $mkdirCommand = "ssh -p$backup_port $backup_user@$backup_host 'mkdir -p /home/$backupServerDir'";
             // Transfer Zip File
-            $transferCommand = "rsync -avz --progress -e 'ssh -p $backup_port' /tmp/{$this->backup_filename}.zip $backup_user@$backup_host:/home/$backupServerDir/";
-            //$transferCommand = "scp -P $backup_port /tmp/" . $this->backup_filename . ".zip $backup_user@$backup_host:/home/$backupServerDir/";
+            //$transferCommand = "rsync -avz --progress -e 'ssh -p $backup_port' /tmp/{$this->backup_filename}.zip $backup_user@$backup_host:/home/$backupServerDir/";
+            $transferCommand = "scp -P $backup_port /tmp/" . $this->backup_filename . ".zip $backup_user@$backup_host:/home/$backupServerDir/";
             // Remove Temp File
             $removeLocalFileCommand = "rm -rf /tmp/" . $this->backup_filename . ".zip";
 
