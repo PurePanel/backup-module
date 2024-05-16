@@ -35,6 +35,7 @@ class BackupJob
             $db_username = $job->getAttribute('database_username');
             $db_password = $job->getAttribute('database_password');
             $db_name = $job->getAttribute('database_name');
+            $isCompress = $job->getAttribute('is_compress');
 
             $backup_name_schema = $job->getAttribute('backup_name_schema');
 
@@ -70,7 +71,8 @@ class BackupJob
                 $server_ssh_password,
                 $server_ssh_port,
                 $location,
-                $filename
+                $filename,
+                $isCompress ?? true
             )->onQueue('file-backup');
 
         }

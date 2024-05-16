@@ -61,4 +61,8 @@ return [
     'type' => [
         'name' => 'Type',
     ],
+    'is_compress' => [
+        'name' => 'Is Compress',
+        'instructions' => 'Do you want the site directory to be transferred to be encrypted in .zip extension?'
+    ],
 ];

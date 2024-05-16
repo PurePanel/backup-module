@@ -20,6 +20,7 @@ class BackupSite implements ShouldQueue
     protected $ssh_port;
     protected $location;
     protected $backup_filename;
+    protected $compress;
 
     public $tries = 3;
 
@@ -31,7 +32,8 @@ class BackupSite implements ShouldQueue
         $ssh_root_password,
         $ssh_port,
         $location,
-        $backup_filename
+        $backup_filename,
+        $compress = true
 
     )
     {
@@ -41,6 +43,7 @@ class BackupSite implements ShouldQueue
         $this->ssh_port = $ssh_port;
         $this->location = $location;
         $this->backup_filename = $backup_filename;
+        $this->compress = $compress;
     }
 
     public function handle()
@@ -59,17 +62,23 @@ class BackupSite implements ShouldQueue
 
             $backupServerDir = str_replace('.', '_', $this->ssh_host);
 
-            // Make directory (Zip)
-            $zipCommand = "zip -r /tmp/" . $this->backup_filename . ".zip " . $this->location;
-            // Create Directory for Storage
-            $mkdirCommand = "ssh -p$backup_port $backup_user@$backup_host 'mkdir -p /home/$backupServerDir'";
-            // Transfer Zip File
-            //$transferCommand = "rsync -avz --progress -e 'ssh -p $backup_port' /tmp/{$this->backup_filename}.zip $backup_user@$backup_host:/home/$backupServerDir/";
-            $transferCommand = "scp -P $backup_port /tmp/" . $this->backup_filename . ".zip $backup_user@$backup_host:/home/$backupServerDir/";
-            // Remove Temp File
-            $removeLocalFileCommand = "rm -rf /tmp/" . $this->backup_filename . ".zip";
+            if ($this->compress) {
+                // Make directory (Zip)
+                $zipCommand = "zip -r /tmp/" . $this->backup_filename . ".zip " . $this->location;
+                // Create Directory for Storage
+                $mkdirCommand = "ssh -p$backup_port $backup_user@$backup_host 'mkdir -p /home/$backupServerDir'";
+                // Transfer Zip File
+                $transferCommand = "scp -P $backup_port /tmp/" . $this->backup_filename . ".zip $backup_user@$backup_host:/home/$backupServerDir/";
+                // Remove Temp File
+                $removeLocalFileCommand = "rm -rf /tmp/" . $this->backup_filename . ".zip";
 
-            $combinedCommand = $zipCommand . " && " . $mkdirCommand . " && " . $transferCommand . " && " . $removeLocalFileCommand;
+                $combinedCommand = $zipCommand . " && " . $mkdirCommand . " && " . $transferCommand . " && " . $removeLocalFileCommand;
+            } else {
+                $mkdirCommand = "ssh -p$backup_port $backup_user@$backup_host 'mkdir -p /home/$backupServerDir/files'";
+                $transferCommand = "rsync -avzu --delete -e 'ssh -p$backup_port' ".$this->location." $backup_user@$backup_host:/home/$backupServerDir/files";
+
+                $combinedCommand = $mkdirCommand . " && " . $transferCommand;
+            }
 
             $ssh->exec($combinedCommand);
 
