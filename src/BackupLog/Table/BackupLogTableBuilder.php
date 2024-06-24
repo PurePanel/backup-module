@@ -25,6 +25,9 @@ class BackupLogTableBuilder extends TableBuilder
      * @var array|string
      */
     protected $columns = [
+        'id' => [
+            'wrapper' => 'entry.id'
+        ],
         'created_at' => [
             'wrapper' => '<strong>{value.datetime}</strong><br><small>{value.timeago}</small>',
             'value'   => [
@@ -62,7 +65,11 @@ class BackupLogTableBuilder extends TableBuilder
      *
      * @var array
      */
-    protected $options = [];
+    protected $options = [
+        "order_by" => [
+            "id" => "DESC"
+        ],
+    ];
 
     /**
      * The table assets.
