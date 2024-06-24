@@ -83,8 +83,9 @@ class BackupSite implements ShouldQueue
 
                 $combinedCommand = $compressCommand . " && " . $mkdirCommand . " && " . $transferCommand . " && " . $removeLocalFileCommand;
             } else {
-                $mkdirCommand = "ssh -p$backup_port $backup_user@$backup_host 'mkdir -p /home/$backupServerDir/files'";
-                $transferCommand = "rsync -avzu --delete -e 'ssh -p$backup_port' " . $this->location . " $backup_user@$backup_host:/home/$backupServerDir/files";
+                $backupPath = "/home/$backupServerDir/rsyncBackups/" . $this->backup_filename;
+                $mkdirCommand = "ssh -p$backup_port $backup_user@$backup_host 'mkdir -p $backupPath'";
+                $transferCommand = "rsync -avzu --delete -e 'ssh -p$backup_port' " . $this->location . " $backup_user@$backup_host:$backupPath";
 
                 $combinedCommand = $mkdirCommand . " && " . $transferCommand;
             }
